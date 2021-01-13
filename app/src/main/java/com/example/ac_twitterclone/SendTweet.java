@@ -3,7 +3,6 @@ package com.example.ac_twitterclone;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -27,9 +26,8 @@ import java.util.List;
 public class SendTweet extends AppCompatActivity implements View.OnClickListener{
     private Button buttonSendTweet, buttonViewOthers;
     private ListView listView;
-    private ArrayAdapter arrayAdapter;
-    private ArrayList<String> arrayUsers, arrayMainUsers;
-    private ArrayList<HashMap<String,String>> list = new ArrayList<HashMap<String,String>>();
+    private ArrayList<String> arrayUsers;
+    private ArrayList<HashMap<String,String>> list;
 
 
 
@@ -45,10 +43,8 @@ public class SendTweet extends AppCompatActivity implements View.OnClickListener
         buttonViewOthers.setOnClickListener(this);
 
         arrayUsers = new ArrayList();
-        arrayMainUsers = new ArrayList();
 
         listView = findViewById(R.id.ListViewTweets);
-        arrayAdapter = new ArrayAdapter(this, android.R.layout.two_line_list_item, arrayUsers);
 
 
 
@@ -84,65 +80,37 @@ public class SendTweet extends AppCompatActivity implements View.OnClickListener
 
                 break;
             case R.id.buttonViewOthers:
-//                SimpleAdapter sa;
+                try {
+                    list = new ArrayList<>();
+                    final SimpleAdapter sa = new SimpleAdapter(SendTweet.this, list,
+                            R.layout.twolines,
+                            new String[]{"line1", "line2"},
+                            new int[]{R.id.line_a, R.id.line_b});
 
-                ParseQuery<ParseUser> parseQuery = new ParseUser().getQuery();
+                    ParseQuery<ParseObject> parseQueryMyTweet = ParseQuery.getQuery("MyTweet");
+                    parseQueryMyTweet.whereContainedIn("user", ParseUser.getCurrentUser().getList("fanOf"));
+                    parseQueryMyTweet.findInBackground(new FindCallback<ParseObject>() {
+                        @Override
+                        public void done(List<ParseObject> objects, ParseException e) {
+                            if (objects.size() > 0 && e == null) {
 
-                parseQuery.whereNotEqualTo("username", ParseUser.getCurrentUser().getUsername());
-
-                parseQuery.findInBackground(new FindCallback<ParseUser>() {
-                    @Override
-                    public void done(List<ParseUser> users, ParseException e) {
-                        if (e == null){
-                            if (users.size() > 0){
-
-                                for (ParseUser user : users){
-                                    arrayUsers.add(user.getUsername());
+                                for (ParseObject tweet : objects) {
+                                    HashMap<String, String> item = new HashMap<>();
+                                    item.put("line1", tweet.getString("user"));
+                                    item.put("line2", tweet.getString("tweet"));
+                                    list.add(item);
                                 }
 
-//                                listView.setAdapter(arrayAdapter);
-                                for (String twitterUser : arrayUsers) {
-                                    if (ParseUser.getCurrentUser().getList("fanOf") != null && ParseUser.getCurrentUser().getList("fanOf").contains(twitterUser)) {
-
-                                        ParseQuery<ParseObject> parseQueryMyTweet = ParseQuery.getQuery("MyTweet");
-
-                                        parseQueryMyTweet.whereEqualTo("user", twitterUser);
-
-
-                                        parseQueryMyTweet.findInBackground(new FindCallback<ParseObject>() {
-                                            @Override
-                                            public void done(List<ParseObject> objects, ParseException e) {
-                                                HashMap<String,String> item;
-                                                for (ParseObject tweet: objects) {
-                                                    item = new HashMap<String,String>();
-                                                    item.put( "line1", tweet.get("user").toString());
-                                                    item.put( "line2", tweet.get("tweet").toString());
-                                                    list.add( item );
-                                                }
-
-                                            }
-                                        });
-
-
-
-                                    }
-
-                                }
-                                if (list.size() > 0) {
-                                    SimpleAdapter sa = new SimpleAdapter(SendTweet.this, list,
-                                            R.layout.twolines,
-                                            new String[]{"line1", "line2"},
-                                            new int[]{R.id.line_a, R.id.line_b});
-                                    ((ListView) findViewById(R.id.list)).setAdapter(sa);
-                                }
-
-
+                                listView.setAdapter(sa);
                             }
+
                         }
-                    }
-                });
+                    });
 
-
+                }catch (Exception e){
+                   e.printStackTrace();
+                }
+//                SimpleAdapter sa;
                 break;
         }
     }
