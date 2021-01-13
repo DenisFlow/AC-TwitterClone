@@ -23,7 +23,7 @@ public class LogInTwitter extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_log_in_twitter);
+        setContentView(R.layout.twolines);
 
         setTitle("Log In");
 

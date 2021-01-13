@@ -5,5 +5,14 @@
     <!-- Change the following strings as required -->
     <string name="back4app_app_id">1OwF0l7svCmmL1VWoniXJHrGE33u5mKtaZE3bv1c</string>
     <string name="back4app_client_key">bQUqjfYHDkEqyw5Bs7dDvVlLfF0WF1mPDDHnhkwE</string>
+    <string name="title_activity_send_message">SendMessage</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
 
 </resources>

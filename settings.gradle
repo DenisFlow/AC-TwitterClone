@@ -1,2 +1,3 @@
+include ':libTetsting'
 include ':app'
 rootProject.name = "AC-TwitterClone"

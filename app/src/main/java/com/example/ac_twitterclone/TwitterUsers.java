@@ -39,11 +39,7 @@ public class TwitterUsers extends AppCompatActivity implements AdapterView.OnIte
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_twitter_users);
 
-
-
         listView = findViewById(R.id.ListView);
-
-
 
         arrayList = new ArrayList();
         arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_checked, arrayList);
@@ -95,7 +91,8 @@ public class TwitterUsers extends AppCompatActivity implements AdapterView.OnIte
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.sendTweetItem){
-
+            Intent intent = new Intent(TwitterUsers.this, SendTweet.class);
+            startActivity(intent);
         } else if (item.getItemId() == R.id.logout_item){
             ParseUser.getCurrentUser().logOutInBackground(new LogOutCallback() {
                 @Override
