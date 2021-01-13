@@ -6,8 +6,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckedTextView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,15 +20,19 @@ import com.parse.LogOutCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
+import com.shashank.sony.fancytoastlib.FancyToast;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TwitterUsers extends AppCompatActivity implements View.OnClickListener{
+public class TwitterUsers extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
     private ListView listView;
     private ArrayList<String> arrayList;
     private ArrayAdapter arrayAdapter;
+
+    private String followedUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,12 +42,13 @@ public class TwitterUsers extends AppCompatActivity implements View.OnClickListe
 
 
         listView = findViewById(R.id.ListView);
-        listView.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
-//        listView.setMultiChoiceModeListener(modeListener);
+
 
 
         arrayList = new ArrayList();
-        arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_expandable_list_item_1, arrayList);
+        arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_checked, arrayList);
+        listView.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
+        listView.setOnItemClickListener(this);
 
 //        listView.setOnItemClickListener(this);
 //        listView.setOnItemLongClickListener(this);
@@ -61,6 +69,15 @@ public class TwitterUsers extends AppCompatActivity implements View.OnClickListe
                         }
 
                         listView.setAdapter(arrayAdapter);
+                        followedUser = "";
+                        for (String twitterUser : arrayList) {
+                            if (ParseUser.getCurrentUser().getList("fanOf") != null && ParseUser.getCurrentUser().getList("fanOf").contains(twitterUser)) {
+                                followedUser = followedUser + twitterUser + "\n";
+                                listView.setItemChecked(arrayList.indexOf(twitterUser), true);
+                            }
+                        }
+                        FancyToast.makeText(TwitterUsers.this, ParseUser.getCurrentUser().getUsername() + " is now following \n" + followedUser, Toast.LENGTH_SHORT, FancyToast.INFO, true).show();
+
                     }
                 }
             }
@@ -68,10 +85,6 @@ public class TwitterUsers extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    @Override
-    public void onClick(View v) {
-
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -98,31 +111,29 @@ public class TwitterUsers extends AppCompatActivity implements View.OnClickListe
         return super.onOptionsItemSelected(item);
     }
 
-//    AbsListView.MultiChoiceModeListener modeListener = new AbsListView.MultiChoiceModeListener() {
-//        @Override
-//        public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
-//
-//        }
-//
-//        @Override
-//        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-//            return false;
-//        }
-//
-//        @Override
-//        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-//            return false;
-//        }
-//
-//        @Override
-//        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-//            return false;
-//        }
-//
-//        @Override
-//        public void onDestroyActionMode(ActionMode mode) {
-//
-//        }
-//    };
 
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        CheckedTextView checkedTextView = (CheckedTextView) view;
+        if (checkedTextView.isChecked()) {
+            FancyToast.makeText(TwitterUsers.this, arrayList.get(position) + " is now followed!", Toast.LENGTH_SHORT, FancyToast.INFO, true).show();
+            ParseUser.getCurrentUser().add("fanOf", arrayList.get(position));
+        } else {
+            FancyToast.makeText(TwitterUsers.this, arrayList.get(position) + " is not now followed!", Toast.LENGTH_SHORT, FancyToast.INFO, true).show();
+            ParseUser.getCurrentUser().getList("fanOf").remove(arrayList.get(position));
+            List currentUserFanOfList = ParseUser.getCurrentUser().getList("fanOf");
+            ParseUser.getCurrentUser().remove("fanOf");
+            ParseUser.getCurrentUser().put("fanOf", currentUserFanOfList);
+        }
+
+        ParseUser.getCurrentUser().saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null){
+                    FancyToast.makeText(TwitterUsers.this, "SUCCESS", Toast.LENGTH_SHORT, FancyToast.SUCCESS, true).show();
+                }
+            }
+        });
+
+    }
 }
