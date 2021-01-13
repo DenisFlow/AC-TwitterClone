@@ -13,8 +13,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ACTwitterClone">
-        <activity android:name=".LogInTwitter" />
-        <activity android:name=".SignUpTwitter">
+        <activity android:name=".TwitterUsers"/>
+        <activity android:name=".SignUpTwitter" />
+        <activity android:name=".LogInTwitter">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
